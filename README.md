@@ -39,8 +39,8 @@ Make sure you have the following tools installed:
 Clone this repository to your local machine using Git:
 
 ```bash
-git clone https://github.com/yourusername/your-repo.git
-cd your-repo
+git clone https://github.com/CoNG-harvard/bio_batch_BO.git
+cd bio_batch_BO
 ```
 
 ## Step 2: Create and then activate conda environment
