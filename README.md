@@ -47,7 +47,7 @@ cd bio_batch_BO
 
 ```
 conda env create -f environment.yml
-conda activate my_project_env
+conda activate bio_batch_BO
 ```
 
 ## Step 3: Try out demo notebook
