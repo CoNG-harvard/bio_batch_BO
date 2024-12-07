@@ -19,17 +19,9 @@ Make sure you have the following tools installed (skip if you have installed the
 1. **Conda**
    - Download and install Anaonda from:
      - [Anaconda](https://www.anaconda.com/products/distribution)
-   - Verify the installation by running:
-     ```bash
-     conda --version
-     ```
 
 2. **Git**
    - Download and install Git from [git-scm.com](https://git-scm.com/).
-   - Verify the installation by running:
-     ```bash
-     git --version
-     ```
 
 ---
 ## System-specific instructions
