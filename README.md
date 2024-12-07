@@ -14,12 +14,11 @@ Follow these steps to set up and run the project on your local machine. The typi
 
 ## Prerequisites
 
-Make sure you have the following tools installed:
+Make sure you have the following tools installed (skip if you have installed these):
 
-1. **Conda** (Anaconda or Miniconda)
-   - Download and install Conda from:
-     - [Anaconda](https://www.anaconda.com/products/distribution) (Comes with more packages preinstalled)
-     - [Miniconda](https://docs.conda.io/en/latest/miniconda.html) (Lightweight alternative)
+1. **Conda**
+   - Download and install Anaonda from:
+     - [Anaconda](https://www.anaconda.com/products/distribution)
    - Verify the installation by running:
      ```bash
      conda --version
@@ -35,6 +34,8 @@ Make sure you have the following tools installed:
 ---
 
 ## Step 1: Clone the Repository
+
+If on Mac, do the following in the terminal.
 
 Clone this repository to your local machine using Git:
 
