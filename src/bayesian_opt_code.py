@@ -28,6 +28,11 @@ import gpytorch
 from sklearn.utils import check_random_state
 from sklearn.model_selection import train_test_split
 
+
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from matplotlib.lines import Line2D
+
 from gpytorch.constraints.constraints import Interval
 
 import re
@@ -35,6 +40,10 @@ import os
 import copy
 
 from src.GP_models import ExactGPModel, TorchGPModel
+
+
+## Set random seed
+torch.manual_seed(1)
 
 #bayesian opt acquisition functions
 
@@ -163,6 +172,7 @@ def ES(
     domain=[0, 1],
     init_points=5,
     noise=1e-4,
+    seed = 0
 ):
     """entropy search variant of action proposal
     Arguments
@@ -174,12 +184,16 @@ def ES(
     n_params: dimension of action a
     beta: ucb exploration bonus
     alpha: (our belief of) observation noise variance, default 0 b/c gp should already include the noise
+    seed: integer
+        Random seed.
     -------------
     Output
     -------------
     proposed new a for states s, shape = [n_agents, action_dim]
     -------------
     """
+    torch.manual_seed(seed)
+    np.random.seed(seed)
     s = sa[:, :state_dim]
     a = sa[:, state_dim:]
     # print("these are the s",s)
@@ -259,7 +273,7 @@ def ES(
 
 
 def sample_next_hyperparameter(s,gaussian_process, evaluated_loss, acquisition_func = None, acq = "ucb",greater_is_better=True,
-                               bounds=(0, 1), n_restarts=10):
+                               bounds=(0, 1), n_restarts=10, seed=0):
     """ sample_next_hyperparameter
     Proposes the next hyperparameter(s) to sample the loss function for.
     Arguments:
@@ -278,7 +292,11 @@ def sample_next_hyperparameter(s,gaussian_process, evaluated_loss, acquisition_f
             Bounds for the L-BFGS optimiser.
         n_restarts: integer.
             Number of times to run the minimiser with different starting points.
+        seed: integer
+            Random seed.
     """
+    torch.manual_seed(seed)
+    np.random.seed(seed)
     best_a = None
 
     best_acquisition_value = 1
@@ -313,5 +331,120 @@ def sample_next_hyperparameter(s,gaussian_process, evaluated_loss, acquisition_f
             best_a = res.x
     # print("a after optimizing", best_a)
     return best_a
+
+
+
+def plot_ucb_surfaces(N = 30, pt = 0.3, models = [], beta = 0.2, elev = 30, azim = 3, plot_ucb = False, 
+    common_zaxis = False, same_color = False, show_fn = True,
+    n_prior = None, n_new = None, plot_poly = True, Xnew = None, Ynew = None, stride = 1):
+
+
+    a1 = np.linspace(0.,1.0,N)
+    a2 = np.linspace(0.,1.0,N)
+    A1,A2 = np.meshgrid(a1,a2)
+    # ucb = np.empty((N,N))
+    K = len(models)
+    mu = np.empty((K,N,N))
+    std = np.empty((K,N,N))
+    plt.rcParams["font.family"] = "Arial"
+    fig, axs = plt.subplots(1, len(models),figsize=(3.5 * (len(models)) + 5, 3.5), subplot_kw = {'projection': '3d'})
+
+    for k in np.arange(len(models)):
+        model = models[k]
+        for i in np.arange(N):
+            for j in np.arange(N):
+                mu[k,i,j], std[k,i,j] = model.predict(np.asarray([pt,A1[i,j], A2[i,j]]), return_std = True)
+
+
+    alpha = 0.2
+
+    cmap = plt.get_cmap("Spectral_r")
+
+    # colors = [cmap(0), cmap(0.85)]
+    colors = [cmap(0), cmap(0.8)]
+    mean_labels = ['prior mean', 'posterior mean']
+    ub_labels = ['prior lower/upper uncertainty bounds', 'posterior lower/upper uncertainty bounds']
+    for k in np.arange(0,len(models)):
+        if same_color == False:
+            if plot_ucb == True:
+                surf = axs[k].plot_surface(A1 , A2 , mu[k,:,:], 
+                    color =  colors[k], shade = False, antialiased = False, rstride = stride, cstride = stride)
+            surf_up = axs[k].plot_surface(A1, A2 , mu[k,:,:] + beta * std[k,:,:], 
+                color = colors[k], alpha = alpha, shade = False, antialiased = False, rstride = stride, cstride = stride)
+            surf_down = axs[k].plot_surface(A1 , A2, mu[k,:,:] - beta * std[k,:,:], 
+                color=colors[k], alpha = alpha, shade = False, antialiased = False, rstride = stride, cstride = stride)
+
+
+            #set x,y lims
+            axs[k].set_xlim(-0.1,1.1)
+            axs[k].set_ylim(-0.1, 1.1)
+
+            #add legend
+            legend_elements = [Line2D([0], [0], color=colors[k], lw=4, label=mean_labels[k]),
+                   Line2D([0], [0], color=colors[k], lw=4, label=ub_labels[k])]
+            legend = axs[k].legend(handles=legend_elements, loc = 'upper right', bbox_to_anchor=(1.2, 1))
+            t = 0
+            for legend_handle in legend.legend_handles:
+                if t == 1:
+                    legend_handle.set_alpha(alpha)
+                t += 1
+
+            if plot_poly == True:
+                x = A1 
+                y = A2
+                ucb = mu[k,:,:] + beta * std[k,:,:]
+                lcb = mu[k,:,:] - beta*std[k,:,:]
+                verts = []
+                for m in np.arange(N*N-1):
+                    verts.append(np.asarray([[x.flatten()[m], y.flatten()[m], ucb.flatten()[m]],
+                        [x.flatten()[m], y.flatten()[m], lcb.flatten()[m]],
+                        [x.flatten()[m+1], y.flatten()[m+1], lcb.flatten()[m+1]],
+                        [x.flatten()[m+1], y.flatten()[m+1], ucb.flatten()[m+1]]]))
+                poly = Poly3DCollection(verts, facecolors = colors[k], alpha = 0.01)
+                axs[k].add_collection3d(poly)
+
+
+
+    y_eps_new = 0.01
+    for l in range(len(Ynew)):
+        print("l=%d" %l,Xnew[l,0], Xnew[l,1], Ynew[l] )
+        if l == 0: #only label first new data
+            axs[1].scatter(Xnew[l,0], Xnew[l,1], Ynew[l] + y_eps_new, color = cmap(0.7), marker = "X", s = 40, label = "new observations")
+        elif l == 1: #for debugging purposes
+            axs[1].scatter(Xnew[l,0], Xnew[l,1], Ynew[l] + y_eps_new, color = cmap(0.7), s = 40, marker = "X")
+        else:
+            axs[1].scatter(Xnew[l,0], Xnew[l,1], Ynew[l] + y_eps_new, color = cmap(0.7), s= 40, marker = "X")
+
+
+    legend_elements = [Line2D([0], [0], color=colors[1], lw=4, label=mean_labels[1]),
+                   Line2D([0], [0], color=colors[1], lw=4, label=ub_labels[1],alpha=alpha)]
+    # Retrieve automatic legend elements
+    handles, labels = axs[1].get_legend_handles_labels()
+    
+    # Prepend manual elements to the automatic ones
+    handles = legend_elements + handles  # Combine manually defined and automatic handles
+    
+    # Update the legend with the combined handles
+    axs[1].legend(handles=handles, loc='upper right', bbox_to_anchor=(1.2, 1))
+
+
+    # Add labels and title
+    titles = ['(Prior) GP belief', 
+    '(Posterior) GP belief']
+    for i in np.arange(len(models)):
+        axs[i].set_xlabel('Amplitude (normalized)')
+        axs[i].set_ylabel('Frequency (normalized)')
+        axs[i].set_zlabel("Change in pseudotime")
+        axs[i].view_init(elev = elev, azim = azim)
+        axs[i].set_title(titles[i])
+        axs[i].set_zlim(-0.2,0.3)
+
+    axs[0].set_zlabel("Change in pseudotime", labelpad=-0.2)  # Adjust padding
+    axs[0].set_box_aspect(None, zoom=0.88)
+    axs[1].set_box_aspect(None, zoom=0.88)
+    # Adjust the width space between subplots
+    # plt.tight_layout()
+    # plt.subplots_adjust(left=0.5, wspace=1.5)
+    plt.show()
 
 
