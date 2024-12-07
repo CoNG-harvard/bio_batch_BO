@@ -353,7 +353,9 @@ def plot_ucb_surfaces(N = 30, pt = 0.3, models = [], beta = 0.2, elev = 30, azim
         model = models[k]
         for i in np.arange(N):
             for j in np.arange(N):
-                mu[k,i,j], std[k,i,j] = model.predict(np.asarray([pt,A1[i,j], A2[i,j]]), return_std = True)
+                mu_ij, std_ij = model.predict(np.asarray([pt,A1[i,j], A2[i,j]]), return_std = True)
+                mu[k,i,j] = mu_ij.squeeze()
+                std[k,i,j] = std_ij.squeeze()
 
 
     alpha = 0.2
@@ -407,7 +409,7 @@ def plot_ucb_surfaces(N = 30, pt = 0.3, models = [], beta = 0.2, elev = 30, azim
 
     y_eps_new = 0.01
     for l in range(len(Ynew)):
-        print("l=%d" %l,Xnew[l,0], Xnew[l,1], Ynew[l] )
+        # print("l=%d" %l,Xnew[l,0], Xnew[l,1], Ynew[l] )
         if l == 0: #only label first new data
             axs[1].scatter(Xnew[l,0], Xnew[l,1], Ynew[l] + y_eps_new, color = cmap(0.7), marker = "X", s = 40, label = "new observations")
         elif l == 1: #for debugging purposes
