@@ -4,7 +4,7 @@ This repository contains the code used in the batch BO component of the AI-cybor
 
 ## System requirements 
 
-The code requires installation of the Anaconda package. All required packages are listed in the environment.yaml file. The software has been tested on a 13-inch, 2020 Macbook Pro with 2 GhZ Quad-Core Intel Core i5 processor, 16GB RAM. There are no nonstandard hardware required.
+The code requires installation of the Anaconda package. All required packages are listed in the environment.yaml file. The software has been tested on Mac, Windows and Linux platforms. There are no nonstandard hardware required.
 
 # Installation Guide
 
