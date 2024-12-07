@@ -32,10 +32,12 @@ Make sure you have the following tools installed (skip if you have installed the
      ```
 
 ---
+## System-specific instructions
+
+If on Mac/Linux, perform the following steps in the terminal.
+If on Windows, open up the Anaconda Powershell Prompt (can find this by searching in the Windows search bar), and then perform the following steps in the Anaconda Powershell prompt.
 
 ## Step 1: Clone the Repository
-
-If on Mac, do the following in the terminal.
 
 Clone this repository to your local machine using Git:
 
@@ -53,7 +55,12 @@ conda activate bio_batch_BO
 
 ## Step 3: Try out demo notebook
 
-For a demonstration of how to run the code, try running demo.ipynb. 
+For a demonstration of how to run the code, run the command 
+
+```
+jupyter notebook
+```
+and then open up the notebook demo.ipynb. 
 
 ## Details on demo notebook
 The demo notebook loads in simulated data, which comprises 3 arrays: xp, yp, and pseudotime_current_devices. xp comprises the pseudotime and action in the existing dataset, yp comprises the change in pseudotime measured at the corresponding pseudotimes and actions, while pseudotime_current_devices contains the pseudotime of the existing current batch of devices for which we wish to sample actions. The expected output is a new set of actions to sample. The expected runtime on the demo is about 1 minute. 
