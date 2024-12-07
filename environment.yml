@@ -1,4 +1,4 @@
-name: bio_batch_BO_3
+name: bio_batch_BO
 channels:
   - defaults
 dependencies:
