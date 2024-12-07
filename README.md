@@ -2,13 +2,17 @@
 
 This repository contains the code used in the batch BO component of the AI-cyborg cardiac organoid maturation project conducted by Prof Na Li and Prof. Jia Liu's labs at Harvard University. 
 
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE) - see the `LICENSE` file for details.
+
 ## System requirements 
 
-The code requires installation of the Anaconda package. All required packages are listed in the environment.yaml file. The software has been tested on Mac, Windows and Linux platforms. There are no nonstandard hardware required.
+The code requires installation of Anaconda and Git. All required packages are listed in the environment.yaml file. The software has been tested on the following OSes: Mac Sequoia 15.1.1, Windows 11 Home and Linux 22.04. There are no nonstandard hardware required.
 
 # Installation Guide
 
-Follow these steps to set up and run the project on your local machine. The typical time required for installation is about 5 to 10 minutes.
+Follow these steps to set up and run the project on your local machine. The typical time required for installation is about 5 to 10 minutes if Git and Conda have been installed, and 10 to 15 minutes if Conda and Git have not been installed.
 
 ---
 
